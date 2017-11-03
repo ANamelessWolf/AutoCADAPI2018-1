@@ -50,8 +50,8 @@ namespace AutoCADAPI.Lab2
                     this.Block = newRecord;
                     this.Block.UpgradeOpen();
                 }
-                this.ActiveTransaction = tr;
             }
+            this.ActiveTransaction = tr;
         }
 
         public void Entities(params Entity[] ents)
