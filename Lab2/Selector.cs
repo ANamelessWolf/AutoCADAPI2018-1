@@ -80,6 +80,24 @@ namespace AutoCADAPI.Lab2
             }
         }
 
+        public static bool Double(string msg, out double value)
+        {
+            PromptDoubleOptions opt = new PromptDoubleOptions(msg);
+            opt.AllowNone = false;
+            PromptDoubleResult result = Ed.GetDouble(opt);
+            if (result.Status == PromptStatus.OK)
+            {
+                value = result.Value;
+                return true;
+            }
+            else
+            {
+                value = 0;
+                return false;
+            }
+        }
+
+
         public static Boolean Entity(String msg, out ObjectId id)
         {
             //Opciones de Selección

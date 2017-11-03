@@ -54,6 +54,42 @@ namespace AutoCADAPI.Lab2
             }
         }
 
+
+        [CommandMethod("NPyramid")]
+        public void DrawPyramid()
+        {
+            Point3d o;
+            Double n, h;
+            if (Selector.Point("Selecciona el centro de la piramide", out o) &&
+                Selector.Double("Dame el tamaño de la base", out n) &&
+                Selector.Double("Dame el tamaño de la altura", out h))
+            {
+                Point3d[] pts = new Point3d[]
+                {
+                    o + new Vector3d(-n/2,-n/2,0),
+                    o + new Vector3d(n/2,-n/2,0),
+                    o + new Vector3d(n/2,n/2,0),
+                    o + new Vector3d(-n/2,n/2,0),
+                    o + new Vector3d(0,0,h)
+                };
+                TransactionWrapper tr = new TransactionWrapper();
+                tr.Run(DrawPyramidTask, new Object[] { pts });
+            }
+        }
+
+        private object DrawPyramidTask(Document doc, Transaction tr, object[] input)
+        {
+            Drawer drawer = new Drawer(tr);
+            Point3d[] pts = (Point3d[])input[0];
+            Autodesk.AutoCAD.Colors.Color green = Autodesk.AutoCAD.Colors.Color.FromRgb(0, 255, 0);
+            drawer.Quad(pts[0], pts[1], pts[2], pts[3], green); //ABCD
+            drawer.Triangle(pts[0], pts[1], pts[4], green); //ABE
+            drawer.Triangle(pts[1], pts[2], pts[4], green); //BCE
+            drawer.Triangle(pts[2], pts[3], pts[4], green); //CDE
+            drawer.Triangle(pts[3], pts[0], pts[4], green); //DAE
+            return null;
+        }
+
         private object DrawPolygon(Document doc, Transaction tr, object[] input)
         {
             Drawer draw = new Drawer(tr);
