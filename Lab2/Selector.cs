@@ -60,6 +60,26 @@ namespace AutoCADAPI.Lab2
             }
         }
 
+        public static bool Integer(string msg, out int value, int minValue)
+        {
+            PromptIntegerOptions opt = new PromptIntegerOptions(msg);
+            opt.AllowNegative = false;
+            opt.AllowZero = false;
+            opt.LowerLimit = minValue;
+            opt.AllowNone = false;
+            PromptIntegerResult result = Ed.GetInteger(opt);
+            if (result.Status == PromptStatus.OK)
+            {
+                value = result.Value;
+                return true;
+            }
+            else
+            {
+                value = 0;
+                return false;
+            }
+        }
+
         public static Boolean Entity(String msg, out ObjectId id)
         {
             //Opciones de Selección

@@ -26,7 +26,39 @@ namespace AutoCADAPI.Lab2
                 TransactionWrapper t = new TransactionWrapper();
                 t.Run(DrawCircleTask, new Object[] { center, radio });
             }
+        }
 
+        [CommandMethod("NPolygon")]
+        public void DrawPolygon()
+        {
+            int sides;
+            Point3d basePt, endPt;
+            Double apo;
+            if (Selector.Point("Selecciona el centro del poligono", out basePt) &&
+                Selector.Point("Selecciona el punto final del apotema", out endPt, basePt)
+                && Selector.Integer("Dame el número de lados", out sides, 3))
+            {
+                double angle = 2 * Math.PI;
+                double x, y, z = 0;
+                angle = angle / sides;
+                apo = basePt.DistanceTo(endPt);
+                Point3dCollection pts = new Point3dCollection();
+                for (int i = 0; i < sides; i++)
+                {
+                    x = basePt.X + apo * Math.Cos(angle * i);
+                    y = basePt.Y + apo * Math.Sin(angle * i);
+                    pts.Add(new Point3d(x, y, z));
+                }
+                TransactionWrapper t = new TransactionWrapper();
+                t.Run(DrawPolygon, new Object[] { pts });
+            }
+        }
+
+        private object DrawPolygon(Document doc, Transaction tr, object[] input)
+        {
+            Drawer draw = new Drawer(tr);
+            draw.Geometry(input[0] as Point3dCollection);
+            return null;
         }
 
         private object DrawCircleTask(Document doc, Transaction tr, object[] input)
