@@ -20,7 +20,7 @@ namespace AutoCADAPI.Lab2
             Point3d center, endPt;
             Double radio;
             if (Selector.Point("Selecciona el centro del punto", out center) &&
-                Selector.Point("Selecciona el punto final del radio", out endPt))
+                Selector.Point("Selecciona el punto final del radio", out endPt, center))
             {
                 radio = center.DistanceTo(endPt);
                 TransactionWrapper t = new TransactionWrapper();
@@ -36,7 +36,7 @@ namespace AutoCADAPI.Lab2
             Circle c = new Circle(center, Vector3d.ZAxis, radio);
             BlockTable blockTable = (BlockTable)doc.Database.BlockTableId.GetObject(OpenMode.ForRead);
             DBObject obj = blockTable[BlockTableRecord.ModelSpace].GetObject(OpenMode.ForWrite);
-            if(obj is BlockTableRecord)
+            if (obj is BlockTableRecord)
             {
                 BlockTableRecord modelSpace = (BlockTableRecord)obj;
                 modelSpace.AppendEntity(c);

@@ -27,7 +27,7 @@ namespace AutoCADAPI.Lab2
             opt.AllowNone = allowNone;
             //Obtenemos el resultado del punto
             PromptPointResult res = Ed.GetPoint(opt);
-            if(res.Status == PromptStatus.OK)
+            if (res.Status == PromptStatus.OK)
             {
                 pt = res.Value;
                 return true;
@@ -38,6 +38,28 @@ namespace AutoCADAPI.Lab2
                 return false;
             }
         }
+        public static Boolean Point(String msg, out Point3d pt, Point3d basePoint, Boolean allowNone = false)
+        {
+            //Opciones de Selección
+            PromptPointOptions opt = new PromptPointOptions(msg);
+            opt.AllowNone = allowNone;
+            opt.BasePoint = basePoint;
+            opt.UseBasePoint = true;
+            opt.UseDashedLine = true;
+            //Obtenemos el resultado del punto
+            PromptPointResult res = Ed.GetPoint(opt);
+            if (res.Status == PromptStatus.OK)
+            {
+                pt = res.Value;
+                return true;
+            }
+            else
+            {
+                pt = default(Point3d);
+                return false;
+            }
+        }
+
         public static Boolean Entity(String msg, out ObjectId id)
         {
             //Opciones de Selección
