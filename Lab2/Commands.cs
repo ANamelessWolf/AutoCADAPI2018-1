@@ -84,7 +84,7 @@ namespace AutoCADAPI.Lab2
             System.Windows.Forms.OpenFileDialog dia =
                 new System.Windows.Forms.OpenFileDialog();
             dia.Multiselect = false;
-            dia.Filter = "*.dwg";
+            dia.Filter = "Blocks (*.dwg)|*.dwg";
             if (dia.ShowDialog() == System.Windows.Forms.DialogResult.OK
                 && dia.FileName != null && dia.FileName.Length > 0)
             {
