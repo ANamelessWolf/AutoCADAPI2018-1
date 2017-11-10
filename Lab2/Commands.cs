@@ -77,6 +77,48 @@ namespace AutoCADAPI.Lab2
             }
         }
 
+
+        [CommandMethod("InsertarBloque")]
+        public void InsertBlock()
+        {
+            System.Windows.Forms.OpenFileDialog dia =
+                new System.Windows.Forms.OpenFileDialog();
+            dia.Multiselect = false;
+            dia.Filter = "*.dwg";
+            if (dia.ShowDialog() == System.Windows.Forms.DialogResult.OK
+                && dia.FileName != null && dia.FileName.Length > 0)
+            {
+                string pth = dia.FileName;
+                Point3d insPt;
+                if (Selector.Point("Selecciona el punto de inserción del bloque", out insPt))
+                {
+                    TransactionWrapper tr = new TransactionWrapper();
+                    tr.Run(InsertarBloqueTask, new Object[] { pth, insPt });
+                }
+            }
+        }
+
+        private object InsertarBloqueTask(Document doc, Transaction tr, object[] input)
+        {
+            String pth = input[0] as String;
+            Point3d insPt = (Point3d)input[1];
+            if (BlockManager.LoadBlock(pth, "OR", doc, tr))
+            {
+                //Se crea la referencia de bloque
+                BlockReference insBlk = BlockManager.InsertBlock("OR", insPt, doc, tr);
+                //Se dibuja el bloque
+                Drawer dw = new Drawer(tr);
+                dw.Entity(insBlk);
+                //Se agregan los parámetros del bloque
+                BlockManager.SetAttribute(insBlk, "INPUTA", "0", doc, tr);
+                BlockManager.SetAttribute(insBlk, "INPUTB", "1", doc, tr);
+                BlockManager.SetAttribute(insBlk, "OUTPUT", "1", doc, tr);
+            }
+            else
+                doc.Editor.WriteMessage("Error al cargar el bloque");
+            return null;
+        }
+
         private object DrawPyramidTask(Document doc, Transaction tr, object[] input)
         {
             Drawer drawer = new Drawer(tr);
