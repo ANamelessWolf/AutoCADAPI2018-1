@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlockManager.cs" />
     <Compile Include="Commands.cs" />
     <Compile Include="Drawer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
