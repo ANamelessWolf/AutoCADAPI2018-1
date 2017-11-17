@@ -35,7 +35,7 @@ namespace AutoCADAPI.Lab3.Model
         /// <summary>
         /// Define las zonas de contacto
         /// </summary>
-        public abstract KeyValuePair<String, Point3dCollection> Zones { get; }
+        public abstract Dictionary<String, Point3dCollection> Zones { get; }
         /// <summary>
         /// El bloque que hace referencia a la compuerta
         /// </summary>

@@ -53,8 +53,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands.cs" />
+    <Compile Include="Controller\CompuertaUtils.cs" />
     <Compile Include="Model\Compuerta.cs" />
     <Compile Include="Model\OR.cs" />
+    <Compile Include="Model\Pulso.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

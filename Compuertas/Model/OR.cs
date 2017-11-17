@@ -12,6 +12,12 @@ namespace AutoCADAPI.Lab3.Model
     {
         public override String[] Inputs => new String[] { "INPUTA", "INPUTB" };
         
-        public override KeyValuePair<string, Point3dCollection> Zones => throw new NotImplementedException();
+        public override Dictionary<string, Point3dCollection> Zones
+        {
+            get
+            {
+                
+            }
+        }
     }
 }
