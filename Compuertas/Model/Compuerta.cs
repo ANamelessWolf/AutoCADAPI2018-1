@@ -1,4 +1,5 @@
 ﻿using AutoCADAPI.Lab2;
+using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
 using System;
@@ -14,10 +15,19 @@ namespace AutoCADAPI.Lab3.Model
     /// </summary>
     public abstract class Compuerta
     {
+        public abstract String[] Inputs { get; }
         /// <summary>
         /// Define la entrada de la compuerta
         /// </summary>
-        public abstract Boolean[] Input { get; set; }
+        public Boolean GetInput(Transaction tr, String input_Name)
+        {
+            if (!Inputs.Contains(input_Name))
+                throw new Exception("Entrada no soportada");
+            Document doc = Application.DocumentManager.MdiActiveDocument;
+            String val = BlockManager.GetAttribute(this.Block, input_Name, doc, tr);
+            Boolean result = Boolean.TryParse(val, out result) ? result : false;
+            return result;
+        }
         /// <summary>
         /// The output
         /// </summary>
