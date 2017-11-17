@@ -23,7 +23,7 @@ namespace AutoCADAPI.Lab3.Model
         {
             this.Values = values;
             this.Geometry = new Polyline();
-            this.Start = new Point3d();
+            this.Start = insPt;
             this.Init();
         }
         /// <summary>
@@ -39,21 +39,22 @@ namespace AutoCADAPI.Lab3.Model
             Boolean lasVal = false;
             for (int i = 0; i < this.Values.Length; i++)
             {
-                Point2d lastPt = this.Geometry.GetPoint2dAt(i);
+                Point2d lastPt = this.Geometry.GetPoint2dAt(this.Geometry.NumberOfVertices-1);
                 if (lasVal == this.Values[i])
-                    this.Geometry.AddVertexAt(i + 1, lastPt + new Vector2d(Size, 0), 0, 0, 0);
+                    this.Geometry.AddVertexAt(this.Geometry.NumberOfVertices, lastPt + new Vector2d(Size, 0), 0, 0, 0);
                 else if (lasVal == false && this.Values[i] == true)
                 {
                     lastPt = lastPt + new Vector2d(0, Size);
-                    this.Geometry.AddVertexAt(i + 1, lastPt, 0, 0, 0);
-                    this.Geometry.AddVertexAt(i + 1, lastPt + new Vector2d(Size, 0), 0, 0, 0);
+                    this.Geometry.AddVertexAt(this.Geometry.NumberOfVertices, lastPt, 0, 0, 0);
+                    this.Geometry.AddVertexAt(this.Geometry.NumberOfVertices, lastPt + new Vector2d(Size, 0), 0, 0, 0);
                 }
                 else
                 {
                     lastPt = lastPt + new Vector2d(0, -Size);
-                    this.Geometry.AddVertexAt(i + 1, lastPt, 0, 0, 0);
-                    this.Geometry.AddVertexAt(i + 1, lastPt + new Vector2d(Size, 0), 0, 0, 0);
+                    this.Geometry.AddVertexAt(this.Geometry.NumberOfVertices, lastPt, 0, 0, 0);
+                    this.Geometry.AddVertexAt(this.Geometry.NumberOfVertices, lastPt + new Vector2d(Size, 0), 0, 0, 0);
                 }
+                lasVal = this.Values[i];
             }
         }
 

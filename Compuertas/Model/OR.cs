@@ -16,7 +16,7 @@ namespace AutoCADAPI.Lab3.Model
         {
             get
             {
-                
+                return null;
             }
         }
     }

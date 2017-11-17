@@ -12,7 +12,7 @@ namespace AutoCADAPI.Lab3.Controller
     {
         public static Dictionary<String, Point3dCollection> GetZonesTwoInputs(this Compuerta com)
         {
-
+            return null;
         }
     }
 }
