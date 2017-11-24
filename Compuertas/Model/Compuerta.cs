@@ -1,10 +1,13 @@
 ﻿using AutoCADAPI.Lab2;
+using AutoCADAPI.Lab3.Controller;
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,57 +18,147 @@ namespace AutoCADAPI.Lab3.Model
     /// </summary>
     public abstract class Compuerta
     {
-        public abstract String[] Inputs { get; }
         /// <summary>
-        /// Define la entrada de la compuerta
+        /// Accede al directorio de bloques
         /// </summary>
-        public Boolean GetInput(Transaction tr, String input_Name)
+        /// <value>
+        /// La ruta al directorio de bloques
+        /// </value>
+        public String BlockDirectory
         {
-            if (!Inputs.Contains(input_Name))
-                throw new Exception("Entrada no soportada");
-            Document doc = Application.DocumentManager.MdiActiveDocument;
-            String val = BlockManager.GetAttribute(this.Block, input_Name, doc, tr);
-            Boolean result = Boolean.TryParse(val, out result) ? result : false;
-            return result;
+            get
+            {
+                string pth = Assembly.GetAssembly(typeof(Compuerta)).Location;
+                pth = Path.GetDirectoryName(pth);
+                return Path.Combine(pth, "Blocks");
+            }
         }
         /// <summary>
-        /// The output
+        /// Define el nombre de las entradas que utiliza la compuerta
         /// </summary>
-        public Boolean Output;
+        /// <value>
+        /// El nombre de las entradas.
+        /// </value>
+        public virtual String[] InputNames => new String[] { "INPUTA", "INPUTB" };
         /// <summary>
-        /// Define las zonas de contacto
+        /// El Identificador de la compuerta.
         /// </summary>
-        public abstract Dictionary<String, Point3dCollection> Zones { get; }
+        public Handle Id { get { return this.Block.Handle; } }
         /// <summary>
-        /// El bloque que hace referencia a la compuerta
+        /// Define las zonas de la aplicación
+        /// </summary>
+        public Dictionary<String, Point3dCollection> Zones;
+        /// <summary>
+        /// Define los puntos de contacto de la compuerta
+        /// </summary>
+        public Dictionary<String, Point3d> ConnectionPoints;
+        /// <summary>
+        /// El nombre de la compuerta
+        /// </summary>
+        public readonly String Name;
+        /// <summary>
+        /// La referencia asociada a la compuerta
         /// </summary>
         public BlockReference Block;
         /// <summary>
-        /// Devolver la caja de colisión del bloque, en XY
+        /// Define la caja de colisión de la compuerta
         /// </summary>
-        /// <returns>La caja de colisión</returns>
-        public Point3dCollection GetBoundingBox()
+        public Point3dCollection Box;
+        /// <summary>
+        /// Resuelve la función de la compuerta
+        /// </summary>
+        /// <param name="input">La entrada de la compuerta.</param>
+        /// <returns>Resuelve la entrada</returns>
+        public abstract bool[] Solve(params InputValue[] input);
+        /// <summary>
+        /// Resuelve la función de la compuerta
+        /// </summary>
+        /// <param name="input">La entrada de la compuerta.</param>
+        /// <returns>Resuelve la entrada</returns>
+        public abstract bool Solve(params Boolean[] input);
+        /// <summary>
+        /// Establece el valor de la compuerta.
+        /// </summary>
+        /// <param name="tr">La transacción activa</param>
+        /// <param name="doc">Active document</param>
+        /// <param name="input">The input.</param>
+        public abstract void SetData(Transaction tr, Document doc, params Boolean[] input);
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase<see cref="Compuerta"/>.
+        /// </summary>
+        /// <param name="name">El nombre de la compuerta.</param>
+        public Compuerta(String name)
         {
-            Point3d min = this.Block.GeometricExtents.MinPoint,
-                    max = this.Block.GeometricExtents.MaxPoint;
-            return new Point3dCollection(new Point3d[]
-            {
-                min,
-                new Point3d(max.X, min.Y, 0),
-                max,
-                new Point3d(min.X, max.Y, 0)
-            });
+            this.Name = name;
         }
+        /// <summary>
+        /// Inserta la compuerta en el punto especificado
+        /// </summary>
+        /// <param name="instPt">La compuerta a insertar.</param>
+        /// <param name="tr">La transacción activa.</param>
+        /// <param name="doc">El documento activo.</param>
+        public void Insert(Point3d instPt, Transaction tr, Document doc)
+        {
+            String file = Path.Combine(this.BlockDirectory, String.Format("{0}.dwg", this.Name));
+            if (BlockManager.LoadBlock(file, this.Name, doc, tr))
+            {
+                this.Block = BlockManager.InsertBlock(this.Name, instPt, doc, tr);
+                Drawer d = new Drawer(tr);
+                d.Entity(this.Block);
+                this.Block.UpgradeOpen();
+                foreach (string input_name in this.InputNames)
+                    BlockManager.SetAttribute(this.Block, input_name, String.Empty, doc, tr);
+                BlockManager.SetAttribute(this.Block, "OUTPUT", String.Empty, doc, tr);
+                this.InitBox();
+            }
+        }
+        /// <summary>
+        /// Inicializa la caja de colisión de la compuerta
+        /// </summary>
+        public void InitBox()
+        {
+            this.Box = new Point3dCollection(new Point3d[]
+            {
+                this.Block.GeometricExtents.MinPoint,
+                new Point3d(this.Block.GeometricExtents.MaxPoint.X,this.Block.GeometricExtents.MinPoint.Y,0),
+                this.Block.GeometricExtents.MaxPoint,
+                new Point3d(this.Block.GeometricExtents.MinPoint.X,this.Block.GeometricExtents.MaxPoint.Y,0),
+            });
+            this.Zones = this.GetZonesTwoInputs();
+            this.ConnectionPoints = this.GetConnectionPointsTwoInputs();
+        }
+
+
         /// <summary>
         /// Dibuja una caja de colisión
         /// </summary>
-        public ObjectId DrawBox(Point3dCollection pts, Drawer drawer)
+        public ObjectId DrawBox(Drawer drawer)
         {
-            drawer.Geometry(pts, true);
+            drawer.Geometry(this.Box, true);
+            foreach (var zone in this.Zones)
+                drawer.Geometry(zone.Value);
             return drawer.Ids.OfType<ObjectId>().FirstOrDefault();
         }
 
-
-
+        /// <summary>
+        /// Obtiene la zona mediante el contacto de un punto
+        /// </summary>
+        /// <param name="test_pt">El punto de contacto</param>
+        /// <param name="zoneName">El nombre de la zona.</param>
+        /// <param name="zone">La zona de contacto.</param>
+        public void GetZone(Point3d test_pt, out string zoneName, out Point3dCollection zone)
+        {
+            zoneName = String.Empty;
+            zone = new Point3dCollection();
+            foreach (var z in this.Zones)
+            {
+                if (test_pt.TestPoint(z.Value))
+                {
+                    zoneName = z.Key;
+                    zone = z.Value;
+                    break;
+                }
+            }
+        }
     }
 }

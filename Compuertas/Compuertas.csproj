@@ -55,16 +55,49 @@
   <ItemGroup>
     <Compile Include="Commands.cs" />
     <Compile Include="Controller\CompuertaUtils.cs" />
+    <Compile Include="Controller\DictionaryManager.cs" />
     <Compile Include="Model\Compuerta.cs" />
+    <Compile Include="Model\InputValue.cs" />
     <Compile Include="Model\OR.cs" />
     <Compile Include="Model\Pulso.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestCommands.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lab2\Lab2.csproj">
       <Project>{06E7385C-58E3-4856-A361-8155EB5750DB}</Project>
       <Name>Lab2</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Blocks\AND.dwg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Blocks\lines.dwg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Blocks\NAND.dwg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Blocks\NOR.dwg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Blocks\NOT.dwg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Blocks\OR.dwg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Blocks\TestBounding.dwg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Blocks\XNOR.dwg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Blocks\XOR.dwg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Model\Compuerta.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

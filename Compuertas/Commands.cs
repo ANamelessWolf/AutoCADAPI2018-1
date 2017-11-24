@@ -14,6 +14,12 @@ namespace AutoCADAPI.Lab3
 {
     public class Commands
     {
+       
+
+
+
+
+
         [CommandMethod("DibujarPulso")]
         public void DPulso()
         {

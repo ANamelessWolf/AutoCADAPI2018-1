@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 //Espacios de nombre de AutoCAD
 using Autodesk.AutoCAD.ApplicationServices;             //La administración de la aplicación.
-using Autodesk.AutoCAD.DatabaseServices;                //Accede a la BD de AutoCAD
 using Autodesk.AutoCAD.EditorInput;                     //La interacción del usuario con AutoCAD
 using Autodesk.AutoCAD.Geometry;                        //Las clases auxiliares para manejar geometría.
 using Autodesk.AutoCAD.Runtime;                         //Cachar excepciones de AutoCAD y definir comandos.
@@ -91,6 +90,17 @@ namespace AutoCADAPI.Lab2
             Face f = new Face(pt0, pt1, pt2, pt3, true, true, true, true);
             f.Color = color;
             this.Entity(f);
+        }
+
+        public void Erase(ObjectIdCollection ids)
+        {
+            DBObject obj;
+           foreach(ObjectId id in ids)
+            {
+                obj = id.GetObject(OpenMode.ForWrite);
+                if (!obj.IsErased)
+                    obj.Erase();
+            }
         }
     }
 }

@@ -23,11 +23,11 @@ namespace AutoCADAPI.Lab2
             get { return Doc.Editor; }
         }
         //La definición de la función tipo Transaction Handler
-        public delegate Object TransactionHandler(Document doc, Transaction tr, Object[] input);
+        public delegate Object TransactionHandler(Document doc, Transaction tr, params Object[] input);
         //La variable tipo función y tipo Transaction Handler
         public TransactionHandler TransactionTask;
 
-        public Object Run(TransactionHandler task, Object[] input)
+        public Object Run(TransactionHandler task, params Object[] input)
         {
             Database dwg = this.Doc.Database;
             Object result;

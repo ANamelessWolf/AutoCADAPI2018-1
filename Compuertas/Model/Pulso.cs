@@ -39,7 +39,7 @@ namespace AutoCADAPI.Lab3.Model
             Boolean lasVal = false;
             for (int i = 0; i < this.Values.Length; i++)
             {
-                Point2d lastPt = this.Geometry.GetPoint2dAt(this.Geometry.NumberOfVertices-1);
+                Point2d lastPt = this.Geometry.GetPoint2dAt(this.Geometry.NumberOfVertices - 1);
                 if (lasVal == this.Values[i])
                     this.Geometry.AddVertexAt(this.Geometry.NumberOfVertices, lastPt + new Vector2d(Size, 0), 0, 0, 0);
                 else if (lasVal == false && this.Values[i] == true)
@@ -57,6 +57,30 @@ namespace AutoCADAPI.Lab3.Model
                 lasVal = this.Values[i];
             }
         }
+
+        public static Boolean[] GetValues(Polyline pl)
+        {
+            int size = (int)(pl.GetPoint2dAt(0).GetDistanceTo(pl.GetPoint2dAt(pl.NumberOfVertices - 1)) / Size);
+            Boolean[] values = new Boolean[size];
+            Boolean val = false;
+            Point2d pV,//Vertice anterior
+                cV;//Vertice actual;
+            int index = 0;
+            for (int i = 1; i < pl.NumberOfVertices; i++)
+            {
+                pV = pl.GetPoint2dAt(i - 1);
+                cV = pl.GetPoint2dAt(i);
+                if (pV.X == cV.X)//Misma X cambia de valor
+                    val = !val;
+                else
+                {
+                    values[index] = val;
+                    index++;
+                }
+            }
+            return values;
+        }
+
 
         public ObjectId Draw(Drawer d)
         {

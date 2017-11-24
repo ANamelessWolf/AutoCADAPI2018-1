@@ -115,5 +115,43 @@ namespace AutoCADAPI.Lab2
                 return false;
             }
         }
+        public static Boolean Entity(String msg, Type filter, out ObjectId id)
+        {
+            //Opciones de Selección
+            PromptEntityOptions opt = new PromptEntityOptions(msg);
+            opt.SetRejectMessage("No es una polilínea");
+            opt.AddAllowedClass(filter, true);
+            //Obtenemos el resultado del punto
+            PromptEntityResult res = Ed.GetEntity(opt);
+            if (res.Status == PromptStatus.OK)
+            {
+                id = res.ObjectId;
+                return true;
+            }
+            else
+            {
+                id = default(ObjectId);
+                return false;
+            }
+        }
+        public static Boolean Entity(String msg, out ObjectId id, out Point3d pickPt)
+        {
+            //Opciones de Selección
+            PromptEntityOptions opt = new PromptEntityOptions(msg);
+            //Obtenemos el resultado del punto
+            PromptEntityResult res = Ed.GetEntity(opt);
+            if (res.Status == PromptStatus.OK)
+            {
+                id = res.ObjectId;
+                pickPt = res.PickedPoint;
+                return true;
+            }
+            else
+            {
+                id = default(ObjectId);
+                pickPt = new Point3d();
+                return false;
+            }
+        }
     }
 }
