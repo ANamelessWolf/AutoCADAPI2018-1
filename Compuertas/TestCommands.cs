@@ -192,5 +192,85 @@ namespace AutoCADAPI.Lab3
             }
             return null;
         }
+
+        [CommandMethod("TestCompuertaCable")]
+        public void ChecarCables()
+        {
+            Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
+            ObjectId compId;
+            if (Selector.Entity("Selecciona una compuerta", out compId))
+            {
+                Compuerta cmp = this.Compuertas.FirstOrDefault(x => x.Value.Block.ObjectId == compId).Value;
+                cmp.InitBox();
+                ObjectId cableAId = cmp.Search("INPUTA").OfType<ObjectId>().FirstOrDefault(),
+                         cableBId = cmp.Search("INPUTB").OfType<ObjectId>().FirstOrDefault();
+                TransactionWrapper tr = new TransactionWrapper();
+                tr.Run(TestConnectionTask, cmp, cableAId, cableBId);
+            }
+        }
+        /// <summary>
+        /// Tests the connection task.
+        /// </summary>
+        /// <param name="doc">The document.</param>
+        /// <param name="tr">The tr.</param>
+        /// <param name="input">The input.</param>
+        private object TestConnectionTask(Document doc, Transaction tr, object[] input)
+        {
+            Compuerta cmp = input[0] as Compuerta;
+            Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
+            if (((ObjectId)input[1]).IsValid && ((ObjectId)input[2]).IsValid)
+            {
+                DBObject cableA = ((ObjectId)input[1]).GetObject(OpenMode.ForRead);
+                DBObject cableB = ((ObjectId)input[2]).GetObject(OpenMode.ForRead);
+                if (cableA is Line && cableB is Line)
+                {
+                    Cable cabA = new Cable(cableA as Line),
+                          cabB = new Cable(cableB as Line);
+                    ObjectId pAId = cabA.Search(true).OfType<ObjectId>().FirstOrDefault(),
+                             pBId = cabB.Search(true).OfType<ObjectId>().FirstOrDefault();
+                    if (pAId.IsValid && pBId.IsValid)
+                    {
+                        DBObject pulsoA = pAId.GetObject(OpenMode.ForRead),
+                             pulsoB = pBId.GetObject(OpenMode.ForRead);
+                        if (pulsoA is Polyline && pulsoB is Polyline)
+                        {
+                            var inputA = Pulso.GetValues(pulsoA as Polyline);
+                            var inputB = Pulso.GetValues(pulsoB as Polyline);
+                            bool[] result = cmp.Solve(
+                                new InputValue[]
+                                {
+                            new InputValue() { Name = "INPUTA", Value = inputA },
+                            new InputValue() { Name = "INPUTB", Value = inputB }
+                                });
+                            Drawer d = new Drawer(tr);
+                            Pulso output = new Pulso(cmp.ConnectionPoints["OUTPUT"], result);
+                            output.Draw(d);
+                        }
+                    }
+                    if (pAId.IsNull)
+                        ed.WriteMessage("No se encontro un pulso conectado al cable A");
+                    if (pBId.IsNull)
+                        ed.WriteMessage("No se encontro un pulso conectado al cable B");
+                }
+            }
+            if (((ObjectId)input[1]).IsNull)
+                ed.WriteMessage("\nCable A desconectado");
+            if (((ObjectId)input[2]).IsNull)
+                ed.WriteMessage("\nCable B desconectado");
+
+            return null;
+        }
     }
+
+    public abstract class test
+    {
+        public abstract PromptSelectionResult SelectAll();
+        public abstract PromptSelectionResult SelectCrossingPolygon(Point3dCollection polygon);
+        public abstract PromptSelectionResult SelectCrossingWindow(Point3d pt1, Point3d pt2);
+        public abstract PromptSelectionResult SelectFence(Point3dCollection fence);
+        public abstract PromptSelectionResult SelectWindow(Point3d pt1, Point3d pt2);
+        public abstract PromptSelectionResult SelectWindowPolygon(Point3dCollection polygon);
+
+    }
+
 }

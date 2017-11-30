@@ -1,4 +1,5 @@
 ﻿using AutoCADAPI.Lab2;
+using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
 using System;
@@ -87,6 +88,38 @@ namespace AutoCADAPI.Lab3.Model
             d.Entity(this.Geometry);
             return d.Ids.OfType<ObjectId>().FirstOrDefault();
         }
+
+        public static void Connect(Transaction tr, Document doc, Dictionary<Handle, Compuerta> compuertas)
+        {
+            ObjectId pulsoId, cmpId;
+            Point3d connPoint;
+            if (Selector.Entity("Selecciona un pulso", typeof(Polyline), out pulsoId) &&
+                Selector.Entity("Selecciona la compuerta a conectar el pulso", out cmpId, out connPoint))
+            {
+                Cable c;
+                //Extraer información del pulso
+                Polyline pl = pulsoId.GetObject(OpenMode.ForRead) as Polyline;
+                Boolean[] data = Pulso.GetValues(pl);
+                Point3d start = pl.EndPoint;
+                //Extraer información de la compuerta
+                Compuerta cmp = compuertas.Values.FirstOrDefault(x => x.Block.Id == cmpId);
+                if (cmp != null)
+                {
+                    String name;
+                    Point3dCollection zone;
+                    cmp.GetZone(connPoint, out name, out zone);
+                    //Obtención del punto de conexión
+                    if (cmp.ConnectionPoints.ContainsKey(name))
+                    {
+                        Point3d end = cmp.ConnectionPoints[name];
+                        Drawer d = new Drawer(tr);
+                        c = Cable.InsertCable(start, end, d);
+                        c.SetData(tr, doc, data);
+                    }
+                }
+            }
+        }
+
 
     }
 }

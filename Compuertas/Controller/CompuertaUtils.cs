@@ -1,4 +1,7 @@
 ﻿using AutoCADAPI.Lab3.Model;
+using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.DatabaseServices;
+using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Geometry;
 using System;
 using System.Collections.Generic;
@@ -73,7 +76,7 @@ namespace AutoCADAPI.Lab3.Controller
             String[] names = new String[] { "INPUTA", "INPUTB", "OUTPUT" };
             Point3d cInput = com.Box[0].MidPoint(com.Box[3]);
             Point3d cOutput = com.Box[1].MidPoint(com.Box[2]);
-            Point3d[] pts = new Point3d[] 
+            Point3d[] pts = new Point3d[]
             {
                 cInput.MidPoint(com.Box[3]),
                 com.Box[0].MidPoint(cInput),
@@ -119,5 +122,28 @@ namespace AutoCADAPI.Lab3.Controller
                 zones.Add(names[i], z[i]);
             return zones;
         }
+
+
+        public static ObjectIdCollection Select(this Point3d basePt)
+        {
+            //Dibujar el poligono
+            double angle = 2 * Math.PI;
+            double x, y, z = 0;
+            angle = angle / 10;
+            double apo = 5;
+            Point3dCollection pts = new Point3dCollection();
+            for (int i = 0; i < 10; i++)
+            {
+                x = basePt.X + apo * Math.Cos(angle * i);
+                y = basePt.Y + apo * Math.Sin(angle * i);
+                pts.Add(new Point3d(x, y, z));
+            }
+            //Ejecutar el metodo de selección
+            Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
+            var res = ed.SelectCrossingPolygon(pts);
+            //Devuelve los elementos seleccionados
+            return res.Status == PromptStatus.OK ? new ObjectIdCollection(res.Value.GetObjectIds()) : new ObjectIdCollection();
+        }
+
     }
 }
