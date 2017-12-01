@@ -34,8 +34,17 @@ namespace AutoCADAPI.Lab3
             if (Selector.Point("Selecciona el punto de inserción de la compuerta", out pt))
             {
                 TransactionWrapper tr = new TransactionWrapper();
-                var cmp = tr.Run(InsertCompuertaTask, new OR(), pt) as Compuerta;
-                Compuertas.Add(cmp.Id, cmp);
+                Compuerta cmp = null;
+                if (Commands.myControlCompuertas != null)
+                {
+                    if (Commands.myControlCompuertas.CompuertaName == "OR")
+                        cmp = new OR();
+                }
+                if (cmp != null)
+                {
+                    cmp = tr.Run(InsertCompuertaTask, cmp, pt) as Compuerta;
+                    Compuertas.Add(cmp.Id, cmp);
+                }
             }
         }
         /// <summary>
