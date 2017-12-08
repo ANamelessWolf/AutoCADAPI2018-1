@@ -2,6 +2,7 @@
 using AutoCADAPI.Lab3.Controller;
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
+using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Geometry;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,19 @@ namespace AutoCADAPI.Lab3.Model
         /// El Identificador de la compuerta.
         /// </summary>
         public Handle Id { get { return this.Block.Handle; } }
+
+        public void Zoom()
+        {
+            ViewTableRecord view = new ViewTableRecord();
+            view.Width = 300;
+            view.Height = 300 ;
+            Point3d pt =this.Block.GeometricExtents.MinPoint.MidPoint(this.Block.GeometricExtents.MaxPoint);
+            view.CenterPoint = new Point2d(pt.X, pt.Y);
+            Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
+            ed.SetCurrentView(view);
+            ed.Regen();
+        }
+
         /// <summary>
         /// Define las zonas de la aplicación
         /// </summary>
