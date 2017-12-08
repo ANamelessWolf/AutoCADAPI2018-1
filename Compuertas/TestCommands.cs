@@ -17,7 +17,7 @@ namespace AutoCADAPI.Lab3
     /// <summary>
     /// Realizá la prueba de contacto de las compuertas
     /// </summary>
-    public class TestCommands
+    public class TestCommands//:IExtensionApplication
     {
         /// <summary>
         /// Las compuertas insertadas en el plano
@@ -348,6 +348,21 @@ namespace AutoCADAPI.Lab3
 
             return null;
         }
+
+        //public void Initialize()
+        //{
+        //    Application.DocumentManager.DocumentActivationChanged += DocumentManager_DocumentActivationChanged;
+        //}
+
+        //private void DocumentManager_DocumentActivationChanged(object sender, DocumentActivationChangedEventArgs e)
+        //{
+           
+        //}
+
+        //public void Terminate()
+        //{
+            
+        //}
     }
 
     public abstract class test

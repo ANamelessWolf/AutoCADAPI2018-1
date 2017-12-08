@@ -70,6 +70,7 @@
     <Compile Include="Controller\DictionaryManager.cs" />
     <Compile Include="Model\Compuerta.cs" />
     <Compile Include="Model\InputValue.cs" />
+    <Compile Include="Model\Node.cs" />
     <Compile Include="Model\OR.cs" />
     <Compile Include="Model\Pulso.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
