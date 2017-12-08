@@ -67,6 +67,36 @@ namespace AutoCADAPI.Lab3
             dMan.SetData(dicCompuerta, tr, "Tipo", "Compuerta");
             return cmp;
         }
+
+        [CommandMethod("LoadCompuertas")]
+        public void CargarCompuertas()
+        {
+            TransactionWrapper trW = new TransactionWrapper();
+            trW.TransactionTask = (Document doc, Transaction tr, object[] input) =>
+            {
+                this.Compuertas = new Dictionary<Handle, Compuerta>();
+                BlockTable blockTable = doc.Database.BlockTableId.GetObject(OpenMode.ForRead) as BlockTable;
+                BlockTableRecord modelSpace = blockTable[BlockTableRecord.ModelSpace].GetObject(OpenMode.ForRead)
+                                        as BlockTableRecord;
+                DBObject obj;
+                BlockReference block;
+                String[] appBlocks = new String[] { "OR", "AND", "VCC" };
+                foreach (var objId in modelSpace)
+                {
+                    obj = objId.GetObject(OpenMode.ForRead);
+                    if (obj is BlockReference && appBlocks.Contains(((obj as BlockReference).Name)))
+                    {
+                        block = (obj as BlockReference);
+                        if (block.Name == "OR")
+                            this.Compuertas.Add(obj.Handle, new OR() { Block = block });
+                    }
+                }
+                return null;
+            };
+            trW.Run(trW.TransactionTask);
+        }
+
+
         [CommandMethod("Queeres")]
         public void CheckEntity()
         {
@@ -100,6 +130,10 @@ namespace AutoCADAPI.Lab3
         [CommandMethod("TestZone")]
         public void TestZone()
         {
+            this.RunCommand(TestZoneCommand);
+        }
+        public void TestZoneCommand()
+        {
             Point3d test_pt;
             ObjectId pickEnt;
             if (Selector.Entity("Selecciona una compuerta", out pickEnt, out test_pt))
@@ -123,6 +157,18 @@ namespace AutoCADAPI.Lab3
                     ed.WriteMessage("No es una compuerta");
             }
         }
+
+        public void RunCommand(Action cmd)
+        {
+            if (this.Compuertas != null && cmd != null)
+                cmd();
+            else
+            {
+                this.Compuertas = new Dictionary<Handle, Compuerta>();
+                cmd();
+            }
+        }
+
         /// <summary>
         /// Define la transacción que dibuja las áreas de contacto de la compuerta
         /// No es necesario que sean visibles para realizar la prueba.
