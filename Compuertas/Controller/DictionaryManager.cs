@@ -57,20 +57,28 @@ namespace AutoCADAPI.Lab3.Controller
         public String[] GetData(ObjectId idD, Transaction tr, String XRecordName)
         {
             DBDictionary dict = idD.GetObject(OpenMode.ForWrite) as DBDictionary;
-            ObjectId xRecordId = dict.GetAt(XRecordName);
-            if (xRecordId.IsValid)
+            try
             {
-                Xrecord xRec = xRecordId.GetObject(OpenMode.ForRead) as Xrecord;
-                if (xRec.Data != null)
+                ObjectId xRecordId = dict.GetAt(XRecordName);
+                if (xRecordId.IsValid)
                 {
-                    TypedValue[] data = xRec.Data.AsArray();
-                    return data.Select(x => x.Value.ToString()).ToArray();
+                    Xrecord xRec = xRecordId.GetObject(OpenMode.ForRead) as Xrecord;
+                    if (xRec.Data != null)
+                    {
+                        TypedValue[] data = xRec.Data.AsArray();
+                        return data.Select(x => x.Value.ToString()).ToArray();
+                    }
+                    else
+                        return new String[0];
                 }
                 else
                     return new String[0];
+
             }
-            else
+            catch (Exception)
+            {
                 return new String[0];
+            }
         }
 
 

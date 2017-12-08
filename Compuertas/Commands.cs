@@ -100,7 +100,14 @@ namespace AutoCADAPI.Lab3
         private object DPulsoTask(Document doc, Transaction tr, object[] input)
         {
             Drawer d = new Drawer(tr);
-            return (input[0] as Pulso).Draw(d);
+            var data = (input[0] as Pulso).Draw(d);
+
+            //Despues de dibujar el pulso abrimos la polilína
+            Entity ent = data.GetObject(OpenMode.ForWrite) as Entity;
+            DictionaryManager dMan = new DictionaryManager();
+            var pulsoDictionary = dMan.GetExtensionD(tr, doc, ent);
+            dMan.SetData(pulsoDictionary, tr, "Tipo", "Pulso");
+            return ent.Id;
         }
     }
 }

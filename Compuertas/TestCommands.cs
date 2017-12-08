@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
+using AutoCADAPI.Lab3.Controller;
 
 namespace AutoCADAPI.Lab3
 {
@@ -58,9 +59,41 @@ namespace AutoCADAPI.Lab3
         {
             Compuerta cmp = (Compuerta)input[0];
             Point3d pt = (Point3d)input[1];
+            DictionaryManager dMan = new DictionaryManager();
             cmp.Insert(pt, tr, doc);
+
+            //En este objeto pueden guardar información de los elementos insertados
+            var dicCompuerta = dMan.GetExtensionD(tr, doc, cmp.Block);
+            dMan.SetData(dicCompuerta, tr, "Tipo", "Compuerta");
             return cmp;
         }
+        [CommandMethod("Queeres")]
+        public void CheckEntity()
+        {
+            ObjectId ent;
+            if (Selector.Entity("Selecciona una entidad", out ent))
+            {
+                TransactionWrapper tr = new TransactionWrapper();
+                //Declaración de un metodo anonimo
+                tr.TransactionTask =
+                    (Document doc, Transaction t, object[] input) =>
+                    {
+                        Entity e = ent.GetObject(OpenMode.ForRead) as Entity;
+                        DictionaryManager dMan = new DictionaryManager();
+                        //abrir dic
+                        var dicCompuerta = dMan.GetExtensionD(t, doc, e);
+                        String[] content = dMan.GetData(dicCompuerta, t, "Tipo");
+                        Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
+                        if (content.Length > 0)
+                            ed.WriteMessage("Eres {0}", content[0]);
+                        else
+                            ed.WriteMessage("No se que eres");
+                        return null;
+                    };
+                tr.Run(tr.TransactionTask);
+            }
+        }
+
         /// <summary>
         /// Realiza la prueba de contacto de la compuerta
         /// </summary>
